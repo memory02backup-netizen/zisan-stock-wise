@@ -29,13 +29,14 @@ const DEFAULT_OPERATORS = [
   { value: "tap", label: "ট্যাপ", color: "bg-teal-500" },
 ];
 
+// Rates stored as "taka per 1000 taka transaction"
 const DEFAULT_RATES: CommissionRates = {
-  bkash: { cash_in: 0.01, cash_out: 0.0185, recharge: 0.02 },
-  nagad: { cash_in: 0.01, cash_out: 0.0185, recharge: 0.02 },
-  rocket: { cash_in: 0.01, cash_out: 0.018, recharge: 0.015 },
-  dbbl: { cash_in: 0.01, cash_out: 0.018, recharge: 0.015 },
-  upay: { cash_in: 0.01, cash_out: 0.018, recharge: 0.015 },
-  tap: { cash_in: 0.01, cash_out: 0.018, recharge: 0.015 },
+  bkash: { cash_in: 10, cash_out: 18.5, recharge: 20 },
+  nagad: { cash_in: 10, cash_out: 18.5, recharge: 20 },
+  rocket: { cash_in: 10, cash_out: 18, recharge: 15 },
+  dbbl: { cash_in: 10, cash_out: 18, recharge: 15 },
+  upay: { cash_in: 10, cash_out: 18, recharge: 15 },
+  tap: { cash_in: 10, cash_out: 18, recharge: 15 },
 };
 
 const PAGE_SIZE = 10;
@@ -97,8 +98,8 @@ const MobileBanking: React.FC = () => {
   };
 
   const calcCommission = (amount: number, operator: string, type: string) => {
-    const rate = commissionRates[operator]?.[type as keyof typeof commissionRates[string]] || 0;
-    return Math.round(amount * rate * 100) / 100;
+    const ratePerThousand = commissionRates[operator]?.[type as keyof typeof commissionRates[string]] || 0;
+    return Math.round(amount * ratePerThousand / 1000 * 100) / 100;
   };
 
   const handleSave = async () => {
@@ -266,21 +267,25 @@ const MobileBanking: React.FC = () => {
                     <label className="text-xs text-muted-foreground block mb-1">
                       {type === "cash_in" ? "ক্যাশ ইন" : type === "cash_out" ? "ক্যাশ আউট" : "রিচার্জ"}
                     </label>
-                    <input type="text" inputMode="decimal"
-                      value={editRates[op.value]?.[type] !== undefined ? String(editRates[op.value][type]) : "0"}
+                    <input type="number" inputMode="decimal" step="0.01"
+                      value={editRates[op.value]?.[type] ?? ""}
                       onChange={(e) => {
-                        const raw = e.target.value.replace(/[^0-9.]/g, "");
-                        const val = raw === "" ? 0 : Number(raw);
-                        if (!isNaN(val)) {
-                          setEditRates({
-                            ...editRates,
-                            [op.value]: { ...editRates[op.value], [type]: raw === "" ? 0 : val }
-                          });
-                        }
+                        const raw = e.target.value;
+                        setEditRates({
+                          ...editRates,
+                          [op.value]: { ...editRates[op.value], [type]: raw === "" ? "" : Number(raw) }
+                        });
+                      }}
+                      onBlur={(e) => {
+                        const val = Number(e.target.value);
+                        setEditRates({
+                          ...editRates,
+                          [op.value]: { ...editRates[op.value], [type]: isNaN(val) ? 0 : val }
+                        });
                       }}
                       className="w-full h-12 px-3 rounded-xl border border-input bg-background text-base text-foreground text-center focus:outline-none focus:ring-2 focus:ring-ring"
                       placeholder="0" />
-                    <p className="text-[10px] text-muted-foreground text-center mt-0.5">হাজারে কত টাকা</p>
+                    <p className="text-[10px] text-muted-foreground text-center mt-0.5">৳ প্রতি ১,০০০ টাকায়</p>
                   </div>
                 ))}
               </div>
