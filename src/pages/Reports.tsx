@@ -6,7 +6,7 @@ import {
 } from "firebase/firestore";
 import { TrendingUp, Package, Users, Download, Calendar, ChevronDown, CalendarDays, Coins, BarChart3, Smartphone, Wallet, DollarSign, CreditCard, Phone } from "lucide-react";
 import jsPDF from "jspdf";
-
+import { transliterateBengali } from "@/lib/transliterate";
 
 const PAGE_SIZE = 10;
 const CLEANUP_DAYS = 40;
@@ -160,20 +160,8 @@ const Reports: React.FC = () => {
   const dailyTotalIncome = dailyProfit + dailyMBComm;
   const monthlyTotalIncome = monthlyProfit + monthlyMBComm;
 
-  // Bengali to English mapping for common terms
-  const bnToEn = (text: string): string => {
-    if (!text) return "";
-    // Replace Bengali digits
-    let result = text.replace(/[০-৯]/g, (d) => "0123456789"["০১২৩৪৫৬৭৮৯".indexOf(d)]);
-    // Common Bengali terms
-    const map: Record<string, string> = {
-      "ক্যাশ বিক্রয়": "Cash Sale", "ক্যাশ": "Cash", "নগদ": "Cash",
-      "পিস": "pcs", "ব্যাগ": "bag", "কেজি": "kg", "লিটার": "ltr",
-      "ফুট": "ft", "মিটার": "m", "সেট": "set", "গজ": "yd",
-    };
-    Object.entries(map).forEach(([bn, en]) => { result = result.split(bn).join(en); });
-    return result;
-  };
+  // Use transliteration for PDF - converts Bengali text to English
+  const bnToEn = (text: string): string => transliterateBengali(text);
 
   const generatePDF = async (type: string) => {
     setPdfLoading(true);
