@@ -18,14 +18,10 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["owner.jpg", "fonts/NotoSansBengali.ttf", "pwa-192x192.png", "pwa-512x512.png"],
+      includeAssets: ["owner.jpg", "fonts/NotoSansBengali.ttf"],
       workbox: {
-        globPatterns: ["**/*.{js,css,html,ico,png,svg,jpg,jpeg,ttf,woff,woff2}"],
-        navigateFallback: "index.html",
+        globPatterns: ["**/*.{js,css,html,ico,png,svg,jpg,ttf,woff,woff2}"],
         navigateFallbackDenylist: [/^\/~oauth/],
-        cleanupOutdatedCaches: true,
-        skipWaiting: true,
-        clientsClaim: true,
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -45,26 +41,6 @@ export default defineConfig(({ mode }) => ({
               cacheableResponse: { statuses: [0, 200] },
             },
           },
-          {
-            urlPattern: /^https:\/\/firestore\.googleapis\.com\/.*/i,
-            handler: "NetworkFirst",
-            options: {
-              cacheName: "firestore-cache",
-              expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 * 24 * 7 },
-              cacheableResponse: { statuses: [0, 200] },
-              networkTimeoutSeconds: 5,
-            },
-          },
-          {
-            urlPattern: /^https:\/\/www\.googleapis\.com\/.*/i,
-            handler: "NetworkFirst",
-            options: {
-              cacheName: "googleapis-cache",
-              expiration: { maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 },
-              cacheableResponse: { statuses: [0, 200] },
-              networkTimeoutSeconds: 5,
-            },
-          },
         ],
       },
       manifest: {
@@ -77,9 +53,9 @@ export default defineConfig(({ mode }) => ({
         orientation: "portrait",
         start_url: "/",
         icons: [
-          { src: "/owner.jpg", sizes: "192x192", type: "image/jpeg" },
-          { src: "/owner.jpg", sizes: "512x512", type: "image/jpeg" },
-          { src: "/owner.jpg", sizes: "512x512", type: "image/jpeg", purpose: "maskable" },
+          { src: "/pwa-192x192.png", sizes: "192x192", type: "image/png" },
+          { src: "/pwa-512x512.png", sizes: "512x512", type: "image/png" },
+          { src: "/pwa-512x512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
         ],
       },
     }),
